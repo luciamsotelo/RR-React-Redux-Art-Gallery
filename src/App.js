@@ -5,6 +5,18 @@ import { fetchData, prevImage, nextImage, setArtId, reset } from './features/dat
 
 const mapStateToProps = state => state.data;
 
+let debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args)
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  }
+}
+
 function App({artId}) {
   const dispatch = useDispatch()
   const data = useSelector((state) => state.data)
@@ -20,6 +32,9 @@ function App({artId}) {
       return <p>image here</p>
     }
   };
+  const onInput = debounce(e => {
+    dispatch(setArtId(e.target.value))
+  }, 500)
 
   return (
     <div className="App">
@@ -37,9 +52,7 @@ function App({artId}) {
           dispatch(prevImage())
         }}>Back</button>
       </div>
-      <input value={ data?.artId } onChange={(e) => {
-        dispatch(setArtId(Number(e.target.value)))
-      }} />
+      <input value={ data?.artId } onChange={onInput} />
       <div>
         {data?.artId}
         {renderImg()}
